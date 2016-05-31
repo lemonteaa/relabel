@@ -21,6 +21,7 @@
                  (clj-test/function? v) [k (v x)]
                  :else (throw (Exception. "Unknown value type")))))))
 
+; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
 (defn from [label]
   (fn [x]
     {:pre [(contains? x label)]}
