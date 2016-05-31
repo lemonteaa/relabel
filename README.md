@@ -29,6 +29,12 @@ Basic mapping:
 
 See unit tests for more advanced examples.
 
+## TODO
+
+- Support something like XPath for modifier from (use Specter?)
+- Support nested map for schema declaration in converter
+- Control on strict/loose setting when key cannot be mapped
+
 ## License
 
 Distributed under the Eclipse Public License either version 1.0 or (at
