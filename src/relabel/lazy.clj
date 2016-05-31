@@ -16,7 +16,7 @@
 
 (defn converter [domain]
   (fn [x]
-    (into {} (for [[k v] x]
+    (into {} (for [[k v] domain]
                (cond
                  (clj-test/function? v) [k (v x)]
                  :else (throw (Exception. "Unknown value type")))))))

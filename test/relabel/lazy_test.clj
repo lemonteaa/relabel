@@ -8,3 +8,10 @@
        nil
        [1 2 3])
   (is (thrown? AssertionError ((from :baz) {:bar 1 :foo "c"}))))
+
+(deftest converter-main
+  (let [in { :username "nick" :age 34 :college "abc" }
+        res { :name "nick" :age 34 :school "abc" }]
+  (is (= res ((converter { :name (from :username)
+                           :age (from :age)
+                           :school (from :college) }) in)))))
