@@ -26,3 +26,17 @@
                                                                      :hashtag (from :keyword)
                                                                      :date (from :submission-date) }))
                                            (from :submissions)) }) in2)))))
+
+(deftest converter-nesting
+  (let [in { :username "Brown" :loc-country "Switzerland" :loc-region "Aargau"
+             :loc-rest "test 1234" :contact-phone "43622556" }
+        res { :name "Brown"
+              :address { :country "Switzerland"
+                         :region "Aargau"
+                         :location "test 1234" }
+              :phone "43622556" }]
+    (is (= res ((converter { :name (from :username)
+                             :address { :country (from :loc-country)
+                                        :region (from :loc-region)
+                                        :location (from :loc-rest) }
+                             :phone (from :contact-phone) }) in)))))

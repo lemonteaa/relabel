@@ -19,6 +19,7 @@
     (into {} (for [[k v] domain]
                (cond
                  (clj-test/function? v) [k (v x)]
+                 (map? v) [k ((converter v) x)]
                  :else (throw (Exception. "Unknown value type")))))))
 
 ; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
