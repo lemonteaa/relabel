@@ -1,24 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [Unreleased]
-### Changed
-- Add a new arity to `make-widget-async` to provide a different widget shape.
-
-## [0.1.1] - 2016-05-31
-### Changed
-- Documentation on how to make the widgets.
-
-### Removed
-- `make-widget-sync` - we're all async, all the time.
-
-### Fixed
-- Fixed widget maker to keep working when daylight savings switches over.
-
-## 0.1.0 - 2016-05-31
+## [0.0.2] - 2016-06-04
 ### Added
-- Files from the new template.
-- Widget maker public API - `make-widget-sync`.
+- Support for nested map in target domain.
+- `one-or-more` modifier.
 
-[Unreleased]: https://github.com/your-name/relabel/compare/0.1.1...HEAD
-[0.1.1]: https://github.com/your-name/relabel/compare/0.1.0...0.1.1
+## 0.0.1 - 2016-05-31
+### Added
+- Basic converter with `from` modifier.
+
+[0.0.2]: https://github.com/lemonteaa/relabel/compare/0.0.1...0.0.2
