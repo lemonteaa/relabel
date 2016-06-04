@@ -9,6 +9,13 @@
        [1 2 3])
   (is (thrown? AssertionError ((from :baz) {:bar 1 :foo "c"}))))
 
+(deftest one-or-more-modifier
+  (let [enriched-f (one-or-more (converter { :hello (from :world)
+                                             :test (from :tee) }))]
+    (is (= { :hello 1 :test 3 } (enriched-f { :world 1 :tee 3 })))
+    (is (= [{ :hello 12 :test 5 } { :hello 27 :test 9 }]
+           (enriched-f [{ :world 12 :tee 5 } { :world 27 :tee 9 }])))))
+
 (deftest converter-main
   (let [in1 { :username "nick" :age 34 :college "abc" }
         res1 { :name "nick" :age 34 :school "abc" }
@@ -22,7 +29,7 @@
                               :age (from :age)
                               :school (from :college) }) in1)))
     (is (= res2 ((converter { :name (from :username)
-                              :posts (comp (partial map (converter { :title (from :title)
+                              :posts (comp (one-or-more (converter { :title (from :title)
                                                                      :hashtag (from :keyword)
                                                                      :date (from :submission-date) }))
                                            (from :submissions)) }) in2)))))

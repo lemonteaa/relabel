@@ -27,3 +27,9 @@
   (fn [x]
     {:pre [(contains? x label)]}
     (get x label)))
+
+(defn one-or-more [f]
+  (fn [x]
+    (if (sequential? x)
+      (map f x)
+      (f x))))
