@@ -14,6 +14,22 @@
 ;;; Of course, per README, one can also look at this as simply
 ;;; destructuring in reverse.
 
+;(def ^:dynamic *config* { :automap-seq true })
+
+; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
+(defn from [label & {:keys [then]
+                     :or { then identity }}]
+  (fn [x]
+    {:pre [(contains? x label)
+           (clj-test/function? then)]}
+    (then (get x label))))
+
+(defn one-or-more [f]
+  (fn [x]
+    (if (sequential? x)
+      (map f x)
+      (f x))))
+
 (defn converter [domain]
   (fn [x]
     (into {} (for [[k v] domain]
@@ -21,15 +37,3 @@
                  (clj-test/function? v) [k (v x)]
                  (map? v) [k ((converter v) x)]
                  :else (throw (Exception. "Unknown value type")))))))
-
-; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
-(defn from [label]
-  (fn [x]
-    {:pre [(contains? x label)]}
-    (get x label)))
-
-(defn one-or-more [f]
-  (fn [x]
-    (if (sequential? x)
-      (map f x)
-      (f x))))

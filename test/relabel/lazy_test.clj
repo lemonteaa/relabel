@@ -7,7 +7,10 @@
        4
        nil
        [1 2 3])
-  (is (thrown? AssertionError ((from :baz) {:bar 1 :foo "c"}))))
+  (is (thrown? AssertionError ((from :baz) {:bar 1 :foo "c"})))
+  ; Testing optional arg 'then'
+  (is (thrown? AssertionError ((from :baz :then 3) {:baz 2})))
+  (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35}))))
 
 (deftest one-or-more-modifier
   (let [enriched-f (one-or-more (converter { :hello (from :world)
@@ -16,7 +19,7 @@
     (is (= [{ :hello 12 :test 5 } { :hello 27 :test 9 }]
            (enriched-f [{ :world 12 :tee 5 } { :world 27 :tee 9 }])))))
 
-(deftest converter-main
+(deftest converter-basic
   (let [in1 { :username "nick" :age 34 :college "abc" }
         res1 { :name "nick" :age 34 :school "abc" }
         in2 { :username "mary"
@@ -47,3 +50,14 @@
                                         :region (from :loc-region)
                                         :location (from :loc-rest) }
                              :phone (from :contact-phone) }) in)))))
+
+;(deftest converter-automap
+;  (let [in1 { :url "test.com" :param-foo "16" }
+;        res1 { :loc "test.com" :data 16 }
+;        in2 { :url "side.com" :param-foo ["16" "43" "61"] }
+;        res2 { :loc "side.com" :data [16 43 61] }
+;        conv (converter { :loc (from :url)
+;                          :data (comp (Integer/parseInt)
+;                                      (from :param-foo)) })]
+;    (is (= res1 (conv in1)))
+;    (is (= res2 (conv in2)))))
