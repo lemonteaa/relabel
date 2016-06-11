@@ -14,7 +14,13 @@
 ;;; Of course, per README, one can also look at this as simply
 ;;; destructuring in reverse.
 
-;(def ^:dynamic *config* { :automap-seq true })
+(def ^:dynamic *config* { :automap-seq true })
+
+(defn one-or-more [f]
+  (fn [x]
+    (if (sequential? x)
+      (map f x)
+      (f x))))
 
 ; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
 (defn from [label & {:keys [then]
@@ -22,13 +28,9 @@
   (fn [x]
     {:pre [(contains? x label)
            (clj-test/function? then)]}
-    (then (get x label))))
-
-(defn one-or-more [f]
-  (fn [x]
-    (if (sequential? x)
-      (map f x)
-      (f x))))
+    (if (:automap-seq *config*)
+      ((one-or-more then) (get x label))
+      (then (get x label)))))
 
 (defn converter [domain]
   (fn [x]

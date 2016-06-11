@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [relabel.lazy :refer :all]))
 
-(deftest from-modifier
+(deftest from-modifier-main
   (are [value] (= value ((from :foo) {:bar 3 :foo value}))
        4
        nil
@@ -11,6 +11,18 @@
   ; Testing optional arg 'then'
   (is (thrown? AssertionError ((from :baz :then 3) {:baz 2})))
   (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35}))))
+
+(deftest from-modifier-config
+  (let [in1 { :url "test.com" :param-foo "16" }
+        res1 16
+        in2 { :url "side.com" :param-foo ["16" "43" "61"] }
+        res2 [16 43 61]
+        f (from :param-foo :then #(Integer/parseInt %))]
+    (is (= res1 (f in1)))
+    (is (= res2 (f in2)))
+    (binding [*config* { :automap-seq false }]
+      (is (= res1 (f in1)))
+      (is (thrown? Exception (f in2))))))
 
 (deftest one-or-more-modifier
   (let [enriched-f (one-or-more (converter { :hello (from :world)
