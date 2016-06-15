@@ -62,6 +62,25 @@ The `from` modifier extract values by key:
 ;; => raise AssertionError
 ```
 
+It accept an optional parameter `:then`, which is a function to apply to after extracting value:
+
+```clojure
+((from :tags :then #(clojure.string/join ", " %)) { :title "TDD in action" :tags ["TDD" "Best practice" "Experience Sharing"] })
+;; => "TDD, Best practice, Experience Sharing"
+```
+
+The `literal` modifier allows you to set constant/fixed field:
+
+```clojure
+(def test-convert (converter { :user-id (from :user-key)
+                               :version (literal "2.3") }))
+
+(test-convert { :user-key 4 })
+;; => { :user-id 4 :version "2.3" }
+(test-convert { :user-key 5 :version "1.2" })
+;; => { :user-id 5 :version "2.3" }
+```
+
 The `one-or-more` modifier change a function so that it can deal with single object and a sequence in the same way:
 
 ```clojure
@@ -74,6 +93,9 @@ The `one-or-more` modifier change a function so that it can deal with single obj
 ```
 
 See unit tests for these examples.
+
+## Global Configs
+TODO
 
 ## TODO
 
