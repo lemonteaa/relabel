@@ -16,6 +16,9 @@
 
 (def ^:dynamic *config* { :automap-seq true })
 
+(defn literal [c]
+  (constantly c))
+
 (defn one-or-more [f]
   (fn [x]
     (if (sequential? x)

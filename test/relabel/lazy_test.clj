@@ -2,6 +2,18 @@
   (:require [clojure.test :refer :all]
             [relabel.lazy :refer :all]))
 
+(deftest literal-modifier
+  (are [value in] (= ((converter { :note (literal value) }) in)
+                     { :note value })
+       [1 2 3] { :foo "test" }
+       [1 2 3] { :note "abc" }
+       "hi" { :foo "test" }
+       "hi" { :note "abc" }
+       55 { :foo "test" }
+       55 { :note "abc" }
+       nil { :foo "test" }
+       nil { :note "abc" }))
+
 (deftest from-modifier-main
   (are [value] (= value ((from :foo) {:bar 3 :foo value}))
        4
