@@ -94,14 +94,46 @@ The `one-or-more` modifier change a function so that it can deal with single obj
 
 See unit tests for these examples.
 
-## Global Configs
-TODO
+## Configs
+
+The library has a global config stored in the dynamic variable `*config*`, which is a map of configuration options vs value. One can either change them "permanantly" through the standard function `alter-var-root`, or apply change to a range of converters using the scoped version `binding`.
+
+Currently there is only one config option:
+
+`:automap-seq` determines whether post-processing is applied flexibly to values extracted from source object's field in the `from` modifier. If true, then the function specified in the `:then` optional parameter will be changed with the `one-or-more` modifier before applying to extracted value.
+
+```clojure
+;; Suppose *config* is { :automap-seq false }
+
+((from :param-vals :then #(Integer/parseInt %)) { :param-vals ["25" "4" "56"] })
+;; => raise Exception
+(binding [*config* { :automap-seq true }]
+  ((from :param-vals :then #(Integer/parseInt %)) { :param-vals ["25" "4" "56"] })
+  ;; => [25 4 56]
+  ((from :param-vals :then #(Integer/parseInt %)) { :param-vals "116" })
+  ;; => 116
+)
+```
+
+To allow more fine-grained control, the config can also be specified in the `from` modifier itself through the optional parameter `:automap?`. As it is more specific, it will override the global config if present.
+
+```clojure
+;; Suppose *config* is { :automap-seq false }
+
+((from :param-vals :then #(Integer/parseInt %) :automap? true)
+  { :param-vals ["25" "4" "56"] })
+;; => [25 4 56]
+```
 
 ## TODO
 
 - Support something like XPath for modifier from (use Specter?)
 - ~~Support nested map for schema declaration in converter~~
 - Control on strict/loose setting when key cannot be mapped
+
+## Contact
+
+This project is currently developed and maintained by @lemonteaa, which can be reached through email listed on the [github account](https://github.com/lemonteaa).
 
 ## License
 
