@@ -29,12 +29,23 @@
         res1 16
         in2 { :url "side.com" :param-foo ["16" "43" "61"] }
         res2 [16 43 61]
-        f (from :param-foo :then #(Integer/parseInt %))]
+        f (from :param-foo :then #(Integer/parseInt %))
+        f-override-t (from :param-foo :then #(Integer/parseInt %) :automap? true)
+        f-override-f (from :param-foo :then #(Integer/parseInt %) :automap? false)]
     (is (= res1 (f in1)))
     (is (= res2 (f in2)))
+    (is (= res1 (f-override-t in1)))
+    (is (= res2 (f-override-t in2)))
+    (is (= res1 (f-override-f in1)))
+    (is (thrown? Exception (f-override-f in2)))
     (binding [*config* { :automap-seq false }]
       (is (= res1 (f in1)))
-      (is (thrown? Exception (f in2))))))
+      (is (thrown? Exception (f in2)))
+      (is (= res1 (f-override-t in1)))
+      (is (= res2 (f-override-t in2)))
+      (is (= res1 (f-override-f in1)))
+      (is (thrown? Exception (f-override-f in2)))
+      )))
 
 (deftest one-or-more-modifier
   (let [enriched-f (one-or-more (converter { :hello (from :world)
