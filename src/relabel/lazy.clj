@@ -14,7 +14,7 @@
 ;;; Of course, per README, one can also look at this as simply
 ;;; destructuring in reverse.
 
-(def ^:dynamic *config* { :automap-seq true })
+(def ^:dynamic *config* { :automap-seq true :strict true })
 
 (defn literal [c]
   (constantly c))
@@ -29,7 +29,7 @@
 (defn from [label & {:keys [then automap?]
                      :or { then identity automap? nil}}]
   (fn [x]
-    {:pre [(contains? x label)
+    {:pre [(or (not (:strict *config*)) (contains? x label))
            (clj-test/function? then)]}
     (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)]
       (if do-automap?
