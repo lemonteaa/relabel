@@ -26,15 +26,16 @@
       (f x))))
 
 ; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
-(defn from [label & {:keys [then automap?]
-                     :or { then identity automap? nil}}]
+(defn from [label & {:keys [default then automap?]
+                     :or { default nil then identity automap? nil}}]
   (fn [x]
     {:pre [(or (not (:strict *config*)) (contains? x label))
            (clj-test/function? then)]}
-    (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)]
+    (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)
+          v (get x label default)]
       (if do-automap?
-        ((one-or-more then) (get x label))
-        (then (get x label))))))
+        ((one-or-more then) v)
+        (then v)))))
 
 (defn converter [domain]
   (fn [x]
