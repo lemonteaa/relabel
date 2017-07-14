@@ -1,6 +1,17 @@
 (ns relabel.lazy-test
   (:require [clojure.test :refer :all]
-            [relabel.lazy :refer :all]))
+            [relabel.lazy :refer :all]
+            [com.rpl.specter :as spct]))
+
+;(let [data { :reqId 123
+;             :req { :type :buy-scissor
+;                    :remarks [{ :msg "Hello world!" :by "Chris" }
+;                              { :msg "Me too" :by "Katie" }
+;                              { :msg "We've got too many paper here, would be nice if we can cut 'em all ;)" :by "Carol" }
+;                              { :msg "So that we can throw a party?" :by "Cindy" }]
+;                    :by "Tom" }
+;             :state :pending }]
+;  (spct/select-one* [:req :remarks spct/LAST :msg] data))
 
 (deftest literal-modifier
   (are [value in] (= ((converter { :note (literal value) }) in)

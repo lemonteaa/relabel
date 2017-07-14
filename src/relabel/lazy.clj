@@ -1,5 +1,6 @@
 (ns relabel.lazy
-  (:require [clojure.test :as clj-test]))
+  (:require [clojure.test :as clj-test]
+            [com.rpl.specter :as spct]))
 
 ;;; Sketch of idea:
 ;;; A declarative domain converter differs from a straight program
@@ -34,7 +35,9 @@
                (or (not (:strict *config*)) (contains? conf :default)))
            (clj-test/function? then)]}
     (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)
-          v (get x label default)]
+          v (if (vector? label)
+              (spct/select-one* label x)
+              (get x label default))]
       (if do-automap?
         ((one-or-more then) v)
         (then v)))))
