@@ -3,6 +3,31 @@
             [relabel.lazy :refer :all]
             [com.rpl.specter :as spct]))
 
+; Extending clojure.test per Daniel Richman's suggestion:
+; https://groups.google.com/forum/#!topic/clojure-dev/kodVkMwl068
+; Even though this is a stop-gap measure until we migrate to a proper testing framework
+(defmethod assert-expr 'thrown-with-data? [msg form]
+  ;; (is (thrown-with-data? emsg data expr))
+  ;; Asserts that evaluating expr throws clojure's ex-info.
+  ;; Also asserts that the message string of the exception matches msg
+  ;; and its map of additional info matches data.
+  (let [emsg (nth form 1)
+        data (nth form 2)
+        body (nthnext form 3)]
+    `(try ~@body
+          (do-report {:type :fail, :message ~msg, :expected '~form, :actual nil})
+          (catch Exception e#
+            (let [m# (.getMessage e#)
+                  d# (ex-data e#)]
+              (if (and (= m# ~emsg) (= d# ~data))
+                (do-report {:type :pass, :message ~msg,
+                         :expected '~form, :actual e#})
+                (do-report {:type :fail, :message ~msg,
+                         :expected '~form, :actual e#})))
+            e#))))
+
+(def ^:private ^:const no-match-strict-msg "relabel: No matching value found in strict mode")
+
 ;(let [data { :reqId 123
 ;             :req { :type :buy-scissor
 ;                    :remarks [{ :msg "Hello world!" :by "Chris" }
@@ -30,7 +55,11 @@
        4
        nil
        [1 2 3])
-  (is (thrown? clojure.lang.ExceptionInfo ((from :baz) {:bar 1 :foo "c"})))
+  (is (thrown-with-data?
+        no-match-strict-msg
+        { :lib "relabel"
+          :type :no-match-strict }
+        ((from :baz) {:bar 1 :foo "c"})))
   ; Testing optional arg 'then'
   (is (thrown? AssertionError ((from :baz :then 3) {:baz 2})))
   (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35}))))
