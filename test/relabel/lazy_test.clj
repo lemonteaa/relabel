@@ -107,5 +107,3 @@
 ;                                      (from :param-foo)) })]
 ;    (is (= res1 (conv in1)))
 ;    (is (= res2 (conv in2)))))
-
-(run-tests)

@@ -26,6 +26,17 @@
       (map f x)
       (f x))))
 
+(defn- extract-by-label [x label default]
+  [(contains? x label)
+   (get x label default)])
+
+(defn- extract-by-selector [x path default]
+  (let [y (spct/select* path x)
+        has-one-elem (and (vector? y) (= (count y) 1))
+        [v] y]
+    [has-one-elem
+     (if has-one-elem v default)]))
+
 ; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
 (defn from [label & {:keys [default then automap?]
                      :or { default nil then identity automap? nil}
@@ -33,20 +44,16 @@
   (fn [x]
     {:pre [(or (keyword? label) (vector? label))
            (clj-test/function? then)]}
-    (if-not (or (contains? x label)
-               (or (not (:strict *config*)) (contains? conf :default)))
-      (throw (Exception. "")))
-    (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)
-          v (if (vector? label)
-              (spct/select-one* label x)
-              (get x label default))]
+    (let [[found? v] (if (vector? label)
+                       (extract-by-selector x label default)
+                       (extract-by-label x label default))
+          loose-mode (or (not (:strict *config*)) (contains? conf :default))
+          do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)]
+      (if-not (or found? loose-mode)
+        (throw (Exception. "No matching value found in strict mode")))
       (if do-automap?
         ((one-or-more then) v)
         (then v)))))
-
-;(let [x [1 2]]
-;(and (vector? x) (= (count x) 1)))
-;(keyword? :a)
 
 (defn converter [domain]
   (fn [x]
