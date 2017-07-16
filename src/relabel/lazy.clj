@@ -31,9 +31,11 @@
                      :or { default nil then identity automap? nil}
                      :as conf}]
   (fn [x]
-    {:pre [(or (contains? x label)
-               (or (not (:strict *config*)) (contains? conf :default)))
+    {:pre [(or (keyword? label) (vector? label))
            (clj-test/function? then)]}
+    (if-not (or (contains? x label)
+               (or (not (:strict *config*)) (contains? conf :default)))
+      (throw (Exception. "")))
     (let [do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)
           v (if (vector? label)
               (spct/select-one* label x)
@@ -41,6 +43,10 @@
       (if do-automap?
         ((one-or-more then) v)
         (then v)))))
+
+;(let [x [1 2]]
+;(and (vector? x) (= (count x) 1)))
+;(keyword? :a)
 
 (defn converter [domain]
   (fn [x]
