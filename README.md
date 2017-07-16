@@ -59,15 +59,41 @@ The `from` modifier extract values by key:
 ;; => nil
 
 ((from :tags) { :title "Another post" })
-;; => raise AssertionError
+;; => raise Exception
 ```
 
-It accept an optional parameter `:then`, which is a function to apply to after extracting value:
+To extract values nested in the source object, `from` also supports extraction through a [Specter](https://github.com/nathanmarz/specter) path:
+
+```clojure
+(require '[com.rpl.specter :as spct])
+
+(let [data { :reqId 123
+             :req { :type :buy-scissor
+                    :remarks [{ :msg "Hello world!" :by "Chris" }
+                              { :msg "Me too" :by "Katie" }
+                              { :msg "We've got too many paper here, would be nice if we can cut 'em all ;)" :by "Carol" }
+                              { :msg "So that we can throw a party?" :by "Cindy" }]
+                    :by "Tom" }
+             :state :pending }]
+  ((from [:req :remarks spct/LAST :msg]) data))
+;; => "So that we can throw a party?"
+```
+
+`from` accept an optional parameter `:then`, which is a function to apply to after extracting value:
 
 ```clojure
 ((from :tags :then #(clojure.string/join ", " %)) { :title "TDD in action" :tags ["TDD" "Best practice" "Experience Sharing"] })
 ;; => "TDD, Best practice, Experience Sharing"
 ```
+
+It also accept an optional parameter `:default`, which can be used to avoid Exception if a matching value is not found, by using the value of the parameter instead:
+
+```clojure
+((from :tags :default "#blogging") { :title "Another post" })
+;; => "#blogging"
+```
+
+Exception can also be avoided by using loose mode, see [Configs](#configs) section for details.
 
 The `literal` modifier allows you to set constant/fixed field:
 
@@ -98,7 +124,7 @@ See unit tests for these examples.
 
 The library has a global config stored in the dynamic variable `*config*`, which is a map of configuration options vs value. One can either change them "permanantly" through the standard function `alter-var-root`, or apply change to a range of converters using the scoped version `binding`.
 
-Currently there is only one config option:
+Currently there are two config options:
 
 `:automap-seq` determines whether post-processing is applied flexibly to values extracted from source object's field in the `from` modifier. If true, then the function specified in the `:then` optional parameter will be changed with the `one-or-more` modifier before applying to extracted value.
 
@@ -125,11 +151,18 @@ To allow more fine-grained control, the config can also be specified in the `fro
 ;; => [25 4 56]
 ```
 
+`:strict` controls the mode for the `from` modifier. It is in strict mode if `:strict` is true, and loose mode if false. In strict mode, `from` will raise an Exception if a value cannot be extracted from the object:
+
++ When selecting by keywords, this happens if the object has no key named by the keyword.
++ When selecting by a Specter path, this happens if there is no matching value or more than one match.
+
+In loose mode, a default value of `nil` will be returned if there is no match. This default value can be overriden by the `:default` optional parameter. Note that if this parameter is present, loose mode will be used for that call of `from` even if we are in strict mode otherwise.
+
 ## TODO
 
-- Support something like XPath for modifier from (use Specter?)
+- ~~Support something like XPath for modifier from (use Specter?)~~
 - ~~Support nested map for schema declaration in converter~~
-- Control on strict/loose setting when key cannot be mapped
+- ~~Control on strict/loose setting when key cannot be mapped~~
 
 ## Contact
 
