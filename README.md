@@ -59,7 +59,7 @@ The `from` modifier extract values by key:
 ;; => nil
 
 ((from :tags) { :title "Another post" })
-;; => raise Exception
+;; => raise ExceptionInfo
 ```
 
 To extract values nested in the source object, `from` also supports extraction through a [Specter](https://github.com/nathanmarz/specter) path:

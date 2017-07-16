@@ -30,7 +30,7 @@
        4
        nil
        [1 2 3])
-  (is (thrown? Exception ((from :baz) {:bar 1 :foo "c"})))
+  (is (thrown? clojure.lang.ExceptionInfo ((from :baz) {:bar 1 :foo "c"})))
   ; Testing optional arg 'then'
   (is (thrown? AssertionError ((from :baz :then 3) {:baz 2})))
   (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35}))))

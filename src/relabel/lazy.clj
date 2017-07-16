@@ -50,7 +50,9 @@
           loose-mode (or (not (:strict *config*)) (contains? conf :default))
           do-automap? (if (nil? automap?) (:automap-seq *config*) automap?)]
       (if-not (or found? loose-mode)
-        (throw (Exception. "No matching value found in strict mode")))
+        (throw (ex-info "relabel: No matching value found in strict mode"
+                        { :lib "relabel"
+                          :type :no-match-strict })))
       (if do-automap?
         ((one-or-more then) v)
         (then v)))))
@@ -61,4 +63,9 @@
                (cond
                  (clj-test/function? v) [k (v x)]
                  (map? v) [k ((converter v) x)]
-                 :else (throw (Exception. "Unknown value type")))))))
+                 :else (throw (ex-info
+                                "relabel: Unknown value type while parsing source domain"
+                                { :lib "relabel"
+                                  :type :src-domain-parse-err
+                                  :key k
+                                  :val v })))))))
