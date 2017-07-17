@@ -98,7 +98,7 @@
          "none"
          nil)))
 
-(deftest from-modifier-config
+(deftest from-modifier-automap-seq-config
   (let [in1 { :url "test.com" :param-foo "16" }
         res1 16
         in2 { :url "side.com" :param-foo ["16" "43" "61"] }
@@ -119,6 +119,27 @@
       (is (= res2 (f-override-t in2)))
       (is (= res1 (f-override-f in1)))
       (is (thrown? Exception (f-override-f in2)))
+      )))
+
+(deftest from-modifier-strict-config
+  (binding [*config* { :strict false }]
+    (let [data { :user-name "Jordan"
+                 :cart { :state :shopping
+                         :items [{ :id 12 :name "Clock" :desc "Help wake you up" }
+                                 { :id 54 :name "Doormat" :desc "Welcoming guest" }
+                                 { :id 293 :name "Vacuum Cleaner" :desc "Wonders of modernity" }
+                                 { :id 740 :name "Hydrodynamic Power Plant" :desc "'nuff said" }] }
+                 :user-type :normal-member }]
+      (is (= "Jordan" ((from :user-name) data)))
+      (is (= :shopping ((from [:cart :state]) data)))
+      (is (= nil ((from :foo) data)))
+      (is (= nil ((from [:cart (spct/must :create-date)]) data)))
+      (are [value] (= value ((from :foo :default value) data))
+           "none"
+           nil)
+      (are [value] (= value ((from [:cart (spct/must :create-date)] :default value) data))
+           "none"
+           nil)
       )))
 
 (deftest one-or-more-modifier
@@ -170,5 +191,3 @@
 ;                                      (from :param-foo)) })]
 ;    (is (= res1 (conv in1)))
 ;    (is (= res2 (conv in2)))))
-
-(run-tests)
