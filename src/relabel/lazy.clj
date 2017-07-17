@@ -35,7 +35,8 @@
         has-one-elem (and (vector? y) (= (count y) 1))
         [v] y]
     [has-one-elem
-     (if has-one-elem v default)]))
+     (if has-one-elem v default)
+     y]))
 
 ; Credit: http://stackoverflow.com/questions/24443985/get-replacement-that-throws-exception-on-not-found
 (defn from [label & {:keys [default then automap?]
@@ -44,7 +45,8 @@
   (fn [x]
     {:pre [(or (keyword? label) (vector? label))
            (clj-test/function? then)]}
-    (let [[found? v] (if (vector? label)
+    (let [select-by  (if (vector? label) :specter-path :label)
+          [found? v s] (if (vector? label)
                        (extract-by-selector x label default)
                        (extract-by-label x label default))
           loose-mode (or (not (:strict *config*)) (contains? conf :default))
@@ -52,7 +54,9 @@
       (if-not (or found? loose-mode)
         (throw (ex-info "relabel: No matching value found in strict mode"
                         { :lib "relabel"
-                          :type :no-match-strict })))
+                          :type :no-match-strict
+                          :select-by select-by
+                          :specter-sel s })))
       (if do-automap?
         ((one-or-more then) v)
         (then v)))))
