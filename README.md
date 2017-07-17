@@ -6,7 +6,7 @@ An (almost) trivial declarative domain converter based on the idea of doing dest
 
 ## Note
 
-This is currently alpha-quality. Also, as the problem this library is trying to solve (clean declarative domain conversion) appear difficult when one begin to consider all sorts of edge case (or just not-so-basic usage), one namespace is allocated for each solution approach.
+As the problem this library is trying to solve (clean declarative domain conversion) appear difficult when one begin to consider all sorts of edge case (or just not-so-basic usage), one namespace is allocated for each solution approach.
 
 ## Latest Version
 
@@ -167,6 +167,10 @@ In loose mode, a default value of `nil` will be returned if there is no match. T
 ## Contact
 
 This project is currently developed and maintained by @lemonteaa, which can be reached through email listed on the [github account](https://github.com/lemonteaa).
+
+## Contributing
+
+Contributors welcome. Just report an issue or submit a pull request.
 
 ## License
 
