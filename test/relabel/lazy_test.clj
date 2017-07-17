@@ -84,14 +84,14 @@
           no-match-strict-msg
           { :lib "relabel"
             :type :no-match-strict }
-          ((from [:cart :create-date]) data)))
+          ((from [:cart (spct/must :create-date)]) data)))
     (is (thrown-with-data?
           no-match-strict-msg
           { :lib "relabel"
             :type :no-match-strict }
           ((from [:cart :items (spct/srange 1 3) spct/ALL :name]) data)))
     ; Testing defaults
-    (are [value] (= value ((from [:cart :create-date] :default value) data))
+    (are [value] (= value ((from [:cart (spct/must :create-date)] :default value) data))
          "none"
          nil)
     (are [value] (= value ((from [:cart :items (spct/srange 1 3) spct/ALL :name] :default value) data))
