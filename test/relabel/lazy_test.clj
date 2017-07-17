@@ -36,7 +36,8 @@
 ;                              { :msg "So that we can throw a party?" :by "Cindy" }]
 ;                    :by "Tom" }
 ;             :state :pending }]
-;  (spct/select-one* [:req :remarks spct/LAST :msg] data))
+;  (spct/select* [:req :remarks spct/LAST :msg] data))
+;  (spct/select* [:req :remarks (spct/srange 1 3) spct/ALL :by] data))
 
 (deftest literal-modifier
   (are [value in] (= ((converter { :note (literal value) }) in)
@@ -62,7 +63,40 @@
         ((from :baz) {:bar 1 :foo "c"})))
   ; Testing optional arg 'then'
   (is (thrown? AssertionError ((from :baz :then 3) {:baz 2})))
-  (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35}))))
+  (is (= 42 ((from :hey :then #(+ % 7)) {:hey 35})))
+  ; Testing defaults
+  (are [value] (= value ((from :foo :default value) { :bar 3 }))
+       "none"
+       nil))
+
+(deftest from-modifier-specter
+  (let [data { :user-name "Jordan"
+               :cart { :state :shopping
+                       :items [{ :id 12 :name "Clock" :desc "Help wake you up" }
+                               { :id 54 :name "Doormat" :desc "Welcoming guest" }
+                               { :id 293 :name "Vacuum Cleaner" :desc "Wonders of modernity" }
+                               { :id 740 :name "Hydrodynamic Power Plant" :desc "'nuff said" }] }
+               :user-type :normal-member }]
+    (is (= :shopping ((from [:cart :state]) data)))
+    (is (= 740 ((from [:cart :items spct/LAST :id]) data)))
+    ; Testing failure when none or more than one selected
+    (is (thrown-with-data?
+          no-match-strict-msg
+          { :lib "relabel"
+            :type :no-match-strict }
+          ((from [:cart :create-date]) data)))
+    (is (thrown-with-data?
+          no-match-strict-msg
+          { :lib "relabel"
+            :type :no-match-strict }
+          ((from [:cart :items (spct/srange 1 3) spct/ALL :name]) data)))
+    ; Testing defaults
+    (are [value] (= value ((from [:cart :create-date] :default value) data))
+         "none"
+         nil)
+    (are [value] (= value ((from [:cart :items (spct/srange 1 3) spct/ALL :name] :default value) data))
+         "none"
+         nil)))
 
 (deftest from-modifier-config
   (let [in1 { :url "test.com" :param-foo "16" }
@@ -136,3 +170,5 @@
 ;                                      (from :param-foo)) })]
 ;    (is (= res1 (conv in1)))
 ;    (is (= res2 (conv in2)))))
+
+(run-tests)
