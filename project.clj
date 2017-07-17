@@ -1,4 +1,4 @@
-(defproject lemonteaa/relabel "0.0.3"
+(defproject lemonteaa/relabel "0.1.0"
   :description "An (almost) trivial declarative domain converter"
   :url "https://github.com/lemonteaa/relabel"
   :license {:name "Eclipse Public License"
